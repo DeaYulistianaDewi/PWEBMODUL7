@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Lowongan Kerja</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h2>Lowongan Kerja</h2>
+
+      <form id="jobForm" class="mb-4">
+        <div class="form-group">
+          <label for="jobTitle">Judul:</label>
+          <input type="text" class="form-control" id="jobTitle" required>
+        </div>
+        <div class="form-group">
+          <label for="jobDescription">Deskripsi:</label>
+          <textarea class="form-control" id="jobDescription" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="jobLocation">Lokasi:</label>
+          <input type="text" class="form-control" id="jobLocation" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">Tambah Lowongan</button>
+      </form>
+
+      <table class="table table-striped" id="jobListTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Judul</th>
+            <th>Deskripsi</th>
+            <th>Lokasi</th>
+          </tr>
+        </thead>
+        <tbody id="jobTableBody">
+          </tbody>
+      </table>
+    </div>
+    <script>
+      $(document).ready(function() {
+        const script_url = 'https://script.google.com/a/macros/uniku.ac.id/s/AKfycbwW6R4Gmy62a8SsTGOL9aZeOYqm3SQexbIPuone9YDBTv7VDDb5vRbWk0LCmyQS8SoW/exec'; // Replace with your actual script ID
+
+        // Load job vacancies on page load
+        loadJobs();
+
+        // Load jobs into the table
+        function loadJobs() {
+          $.ajax({
+            url: script_url,
+            type: "GET",
+            data: { action: "readJobs" }, // Update the action parameter
+            dataType: "json",
+            success: function(response) {
+              const tbody = $('#jobTableBody');
+              tbody.empty(); // Clear the Table Body
+
+              response.forEach(job => {
+                tbody.append(
+                  `<tr>
+                    <td>${job.ID}</td>
+                    <td>${job.Judul}</td>
+                    <td>${job.Deskripsi}</td>
+                    <td>${job.Lokasi}</td>
+                  </tr>`
+                );
+              });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              console.error("Request failed:", textStatus, errorThrown);
+            }
+          });
+        }
+
+        // Handle form submit for adding new job vacancy
+        $('#jobForm').on('submit', function(event) {
+          event.preventDefault();
+          const title = $('#jobTitle').val();
+          const description = $('#jobDescription').val();
+          const location = $('#jobLocation').val();
+
+          $.ajax({
+            url: script_url,
+            type: "GET",
+            dataType: "jsonp",
+            data: { title, description, location, action: 'addJob' },
+            success: function(response) {
+              alert(response.message); // Update success message
+              loadJobs();
+              $('#jobForm').trigger('reset'); // Clear form after submission
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              console.error("Request failed:", textStatus, errorThrown);
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
